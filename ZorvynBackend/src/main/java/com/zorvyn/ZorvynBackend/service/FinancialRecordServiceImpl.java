@@ -6,6 +6,7 @@ import com.zorvyn.ZorvynBackend.repository.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +71,16 @@ public class FinancialRecordServiceImpl implements FinancialRecordService{
     @Override
     public List<FinancialRecord> findByRecordType(RecordType recordType) {
         return recordRepository.findByRecordType(recordType);
+    }
+
+    @Override
+    public BigDecimal getTotalIncome() {
+        return recordRepository.getTotalIncome();
+    }
+
+    @Override
+    public BigDecimal getTotalExpense() {
+        return recordRepository.getTotalExpense();
     }
 
 }

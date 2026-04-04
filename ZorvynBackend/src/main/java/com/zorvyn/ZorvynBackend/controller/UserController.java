@@ -6,14 +6,17 @@ import com.zorvyn.ZorvynBackend.model.User;
 import com.zorvyn.ZorvynBackend.service.FinancialRecordService;
 import com.zorvyn.ZorvynBackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -53,8 +56,8 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('VIEWER','ADMIN','ANALYST')")
     @GetMapping("/viewrecords")
-    public List<FinancialRecord> getRecords(){
-        return financialRecordService.getAllFinancialRecords();
+    public ResponseEntity<?> getRecords(){
+        return ResponseEntity.ok(financialRecordService.getAllFinancialRecords());
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -82,20 +85,74 @@ public class UserController {
         return financialRecordService.deleteRecord(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/viewrecords")
-    public List<FinancialRecord> getRecords(
+    @PreAuthorize("hasAnyRole('ADMIN','VIEWER','ANALYST')")
+    @GetMapping("/viewrecords/filter")
+    public ResponseEntity<?> getRecords(
             @RequestParam(required = false) String category,
-            @RequestParam(required = false) RecordType recordType
-    ) {
-        if (category != null && !category.isEmpty()) {
-            return financialRecordService.findByCategory(category);
+            @RequestParam(required = false) RecordType recordType) {
+        List<FinancialRecord> records = financialRecordService.getAllFinancialRecords();
+
+        if (recordType != null) {
+            records = records.stream()
+                    .filter(r -> r.getRecordType() == recordType)
+                    .toList();
         }
-        // .. check other params
-        return financialRecordService.getAllFinancialRecords(); // Fallback to all
+
+        if (category != null && !category.isBlank()) {
+            records = records.stream()
+                    .filter(r -> r.getCategory() != null && r.getCategory().equalsIgnoreCase(category))
+                    .toList();
+        }
+
+        return ResponseEntity.ok(records);
     }
 
 
+    @PreAuthorize("hasAnyRole('VIEWER','ANALYST','ADMIN')")
+    @GetMapping("/gettotalincome")
+    public BigDecimal getTotalIncome(){
+       // System.out.println(financialRecordService.getTotalIncome());
+        return financialRecordService.getTotalIncome();
+    }
+
+    @PreAuthorize("hasAnyRole('VIEWER','ANALYST','ADMIN')")
+    @GetMapping("/gettotalexpense")
+    public BigDecimal getTotalExpense(){
+        return financialRecordService.getTotalExpense();
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN','VIEWER','ANALYST')")
+    @GetMapping("/recentrecords")
+    public ResponseEntity<?> getTodayCreatedRecords(){
+        LocalDate today = LocalDate.now();
+        List<FinancialRecord> records = financialRecordService.getAllFinancialRecords().stream()
+                .filter(r -> r.getCreatedAt() != null && r.getCreatedAt().toLocalDate().isEqual(today)).toList();
+
+        return ResponseEntity.ok(records);
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN','VIEWER','ANALYST')")
+    @GetMapping("/weeklytrends")
+    public ResponseEntity<?> getWeeklyTrend(){
+        LocalDate today = LocalDate.now();
+        LocalDate start = today.minusDays(6);
+        Map<LocalDate,BigDecimal> trend = new LinkedHashMap<>();
+        for(int i=0;i<7;i++){
+            trend.put(start.plusDays(i),BigDecimal.ZERO);
+        }
+
+        financialRecordService.getAllFinancialRecords().stream()
+                .filter(r -> r.getCreatedAt() != null)
+                .forEach(r -> {
+                    LocalDate d = r.getCreatedAt().toLocalDate();
+                    if(!d.isBefore(start) && !d.isAfter(today)){
+                        trend.put(d,trend.get(d).add(r.getAmount()));
+                    }
+                });
+        return ResponseEntity.ok(trend);
+    }
+
 
 }
-

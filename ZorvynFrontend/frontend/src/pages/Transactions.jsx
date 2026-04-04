@@ -200,7 +200,7 @@ const Transactions = () => {
               <input required type="text" className="w-full" placeholder="Record Title" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Amount ($)</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Amount (₹)</label>
               <input required type="number" step="0.01" className="w-full" placeholder="e.g. 50.00" value={formData.amount} onChange={(e) => setFormData({...formData, amount: e.target.value})} />
             </div>
             <div>
@@ -239,7 +239,7 @@ const Transactions = () => {
               <input required type="text" className="w-full" placeholder="Record Title" value={updateData.title} onChange={(e) => setUpdateData({...updateData, title: e.target.value})} />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Amount ($)</label>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Amount (₹)</label>
               <input required type="number" step="0.01" className="w-full" placeholder="e.g. 50.00" value={updateData.amount} onChange={(e) => setUpdateData({...updateData, amount: e.target.value})} />
             </div>
             <div>
@@ -297,9 +297,10 @@ const Transactions = () => {
                       <td>{tx.date}</td>
                       <td style={{ fontWeight: 500 }}>{tx.description}</td>
                       <td>{tx.category}</td>
-                      <td><span className={`badge ${tx.type}`}>{tx.type}</span></td>
+                      <td><span className={`badge 
+                        {tx.type}`}>{tx.type}</span></td>
                       <td style={{ textAlign: 'right', fontWeight: 600, color: tx.type === 'income' ? 'var(--success)' : 'var(--danger)' }}>
-                        {tx.type === 'income' ? '+' : '-'}${tx.amount}
+                        {tx.type === 'income' ? '+' : '-'}₹{tx.amount}
                       </td>
                       {user?.role === 'admin' && (
                         <td style={{ textAlign: 'right' }}>
