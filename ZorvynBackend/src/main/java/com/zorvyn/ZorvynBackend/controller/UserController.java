@@ -52,7 +52,7 @@ public class UserController {
         return userService.register(user);
     }
 
-    @PreAuthorize("hasAnyRole('VIEWER','ADMIN','ANALYST')")
+    @PreAuthorize("hasAnyRole('ADMIN','ANALYST')")
     @GetMapping("/viewrecords")
     public ResponseEntity<?> getRecords(){
         return ResponseEntity.ok(financialRecordService.getAllFinancialRecords());
@@ -83,7 +83,7 @@ public class UserController {
         return financialRecordService.deleteRecord(id);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','VIEWER','ANALYST')")
+    @PreAuthorize("hasAnyRole('ADMIN','ANALYST')")
     @GetMapping("/viewrecords/filter")
     public ResponseEntity<?> getRecords(
             @RequestParam(required = false) String category,
