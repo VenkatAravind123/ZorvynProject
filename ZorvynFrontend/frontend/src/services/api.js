@@ -14,9 +14,9 @@ let transactions = [
 ];
 
 let users = [
-  { id: 'u1', name: 'Admin User', email: 'admin@findash.com', role: 'admin', status: 'active', lastLogin: '2026-04-02T10:00:00Z' },
-  { id: 'u2', name: 'Alice Analyst', email: 'alice@findash.com', role: 'analyst', status: 'active', lastLogin: '2026-04-01T15:30:00Z' },
-  { id: 'u3', name: 'Bob Viewer', email: 'bob@findash.com', role: 'viewer', status: 'inactive', lastLogin: '2026-03-25T08:15:00Z' },
+  { id: 'u1', name: 'Admin User', email: 'admin@gmail.com', role: 'admin', status: 'active', lastLogin: '2026-04-02T10:00:00Z' },
+  { id: 'u2', name: 'Alice Analyst', email: 'ram@gmail.com', role: 'analyst', status: 'active', lastLogin: '2026-04-01T15:30:00Z' },
+  { id: 'u3', name: 'Bob Viewer', email: 'aravind@gmail.com.com', role: 'viewer', status: 'inactive', lastLogin: '2026-03-25T08:15:00Z' },
 ];
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));

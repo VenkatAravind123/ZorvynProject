@@ -12,6 +12,24 @@ const Login = () => {
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState(null);
 
+ const clearAuthStorage = () => {
+  localStorage.removeItem('finance_token');
+  localStorage.removeItem('finance_user');
+ };
+
+ const getAuthErrorMessage = (raw) => {
+  const msg = (raw ?? '').toString().trim();
+  if (!msg) return null;
+
+  if (/bad\s*credentials/i.test(msg)) return 'Invalid email or password. Please try again.';
+  if (/unauthorized|forbidden/i.test(msg)) return 'Invalid email or password. Please try again.';
+  if (/failed/i.test(msg) && /credential/i.test(msg)) return 'Invalid email or password. Please try again.';
+
+  // If backend returns a short plain-text error, show it.
+  if (msg.length <= 160) return msg;
+  return 'Login failed. Please try again.';
+ };
+
  const parseJwt = (token) => {
  try {
  const base64Url = token.split('.')[1];
@@ -35,24 +53,43 @@ const Login = () => {
  setLoading(true);
 
  try {
- const response = await fetch('/user/login', {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ email: email.trim(), password })
- });
+  const response = await fetch('/user/login', {
+   method: 'POST',
+   headers: { 'Content-Type': 'application/json' },
+   body: JSON.stringify({ email: email.trim(), password })
+  });
 
- if (!response.ok) {
- setError('Invalid email or password. Please try again.');
- return;
- }
+  const rawBody = (await response.text()).trim();
 
- const token = (await response.text()).trim();
- if (!token) {
- setError('Login failed. Empty token received.');
- return;
- }
+  if (!response.ok) {
+   clearAuthStorage();
+   setError(getAuthErrorMessage(rawBody) || 'Invalid email or password. Please try again.');
+   return;
+  }
 
- const claims = parseJwt(token);
+  if (!rawBody) {
+   clearAuthStorage();
+   setError('Login failed. Empty token received.');
+   return;
+  }
+
+  // Some backends return a 200 with a plain-text error message.
+  // Only treat the response as a token if it looks like a JWT.
+  const token = rawBody;
+  const parts = token.split('.');
+  const looksLikeJwt = parts.length === 3 && parts.every((p) => p.length > 0);
+  if (!looksLikeJwt) {
+   clearAuthStorage();
+   setError(getAuthErrorMessage(token) || 'Invalid email or password. Please try again.');
+   return;
+  }
+
+  const claims = parseJwt(token);
+  if (!claims || typeof claims !== 'object') {
+   clearAuthStorage();
+   setError('Login failed. Invalid token received.');
+   return;
+  }
   let parsedRole =
     claims?.role ||
     claims?.roles?.[0] ||
@@ -64,18 +101,19 @@ const Login = () => {
     ? parsedRole.replace(/^ROLE_/i, '').toLowerCase() 
     : 'viewer';
 
- const user = { email: email.trim(), role };
+  const user = { email: email.trim(), role };
 
- localStorage.setItem('finance_token', token);
- localStorage.setItem('finance_user', JSON.stringify(user));
+  localStorage.setItem('finance_token', token);
+  localStorage.setItem('finance_user', JSON.stringify(user));
 
- if (typeof login === 'function') {
- login(user, token);
- }
+  if (typeof login === 'function') {
+   login(user, token);
+  }
 
- navigate('/', { replace: true });
+  navigate('/', { replace: true });
  } catch (err) {
  console.error('Login error:', err);
+  clearAuthStorage();
  setError('Network error. Please check your connection and try again.');
  } finally {
  setLoading(false);
@@ -83,8 +121,14 @@ const Login = () => {
  };
 
  const autofill = (testEmail) => {
- setEmail(testEmail);
- setPassword('password123');
+  setEmail(testEmail);
+  if (testEmail === 'admin@gmail.com') {
+   setPassword('admin@123');
+  } else if (testEmail === 'aravind@gmail.com') {
+   setPassword('aravind@123');
+  } else if (testEmail === 'ram@gmail.com') {
+   setPassword('ram@123');
+  }
  };
 
  return (
@@ -179,7 +223,7 @@ const Login = () => {
  style={{ width: '100%', marginTop: '10px', justifyContent: 'center' }}
  disabled={loading}
  >
- {loading ? 'Verifying...' : <><LogIn size={18} /> Sign In</>}
+ {loading ? 'Verifying...' : <><LogIn size={18} /> Log In</>}
  </button>
  </form>
 
@@ -193,11 +237,11 @@ const Login = () => {
  >
  <p style={{ marginBottom: '12px', textAlign: 'center' }}>Available Test Accounts</p>
  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
- <button type="button" className="badge admin" style={{ cursor: 'pointer' }} onClick={() => autofill('admin@findash.com')}>
+ <button type="button" className="badge admin" style={{ cursor: 'pointer' }} onClick={() => autofill('admin@gmail.com')}>
  Admin </button>
- <button type="button" className="badge analyst" style={{ cursor: 'pointer' }} onClick={() => autofill('alice@findash.com')}>
+ <button type="button" className="badge analyst" style={{ cursor: 'pointer' }} onClick={() => autofill('ram@gmail.com')}>
  Analyst </button>
- <button type="button" className="badge viewer" style={{ cursor: 'pointer' }} onClick={() => autofill('bob@findash.com')}>
+ <button type="button" className="badge viewer" style={{ cursor: 'pointer' }} onClick={() => autofill('aravind@gmail.com')}>
  Viewer </button>
  </div>
  </div>

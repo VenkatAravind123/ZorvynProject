@@ -1,8 +1,6 @@
 package com.zorvyn.ZorvynBackend.controller;
 
-import com.zorvyn.ZorvynBackend.model.FinancialRecord;
-import com.zorvyn.ZorvynBackend.model.RecordType;
-import com.zorvyn.ZorvynBackend.model.User;
+import com.zorvyn.ZorvynBackend.model.*;
 import com.zorvyn.ZorvynBackend.service.FinancialRecordService;
 import com.zorvyn.ZorvynBackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +79,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleterecord/{id}")
-    public String deleteRecord(@RequestParam Long id){
+    public String deleteRecord(@PathVariable Long id){
         return financialRecordService.deleteRecord(id);
     }
 
@@ -154,5 +152,20 @@ public class UserController {
         return ResponseEntity.ok(trend);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/users/{id}/role")
+    public ResponseEntity<User> updateUserRole(@PathVariable Long id,@RequestParam String role){
+        Role parsedRole = Role.valueOf(role.trim().toUpperCase());
+        User updated = userService.updateUserRole(id,parsedRole);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/users/{id}/status")
+    public ResponseEntity<User> updateUserStatus(@PathVariable Long id,@RequestParam String status){
+        UserStatus parsedStatus = UserStatus.valueOf(status.trim().toUpperCase());
+        User updated = userService.updateUserStatus(id,parsedStatus);
+        return ResponseEntity.ok(updated);
+    }
 
 }

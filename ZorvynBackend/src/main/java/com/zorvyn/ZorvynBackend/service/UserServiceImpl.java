@@ -1,7 +1,9 @@
 package com.zorvyn.ZorvynBackend.service;
 
 import com.zorvyn.ZorvynBackend.model.FinancialRecord;
+import com.zorvyn.ZorvynBackend.model.Role;
 import com.zorvyn.ZorvynBackend.model.User;
+import com.zorvyn.ZorvynBackend.model.UserStatus;
 import com.zorvyn.ZorvynBackend.repository.RecordRepository;
 import com.zorvyn.ZorvynBackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +58,20 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public User updateUserRole(Long id, Role role) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateUserStatus(Long id, UserStatus status) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
+        user.setStatus(status);
+        return userRepository.save(user);
     }
 
 

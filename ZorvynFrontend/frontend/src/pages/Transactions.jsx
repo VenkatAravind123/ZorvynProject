@@ -48,7 +48,7 @@ const Transactions = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/user/deleterecord?id=${id}`,{
+      await axios.delete(`/user/deleterecord/${id}`,{
         headers:{
           Authorization: `Bearer ${localStorage.getItem('finance_token')}`
         }

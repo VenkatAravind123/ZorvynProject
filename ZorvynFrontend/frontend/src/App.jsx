@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Users from './pages/Users';
@@ -14,7 +15,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          
+          <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute allowedRoles={['admin', 'analyst', 'viewer']} />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/users" element={<Users />} />
               </Route>
             </Route>
+                <Route path="/register" element={<Register />} />
           </Route>
           
           <Route path="*" element={<Navigate to="/" replace />} />

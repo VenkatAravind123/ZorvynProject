@@ -228,18 +228,18 @@ const Dashboard = () => {
       </div>
 
       {/* Viewer Restriction Message */}
-      {user.role === 'viewer' ? (
-  <p>You cannot access recent activity</p>
-) : error ? (
+    {user.role === 'viewer' && (
+  <div className="glass-panel stagger-2" style={{ padding: '30px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
+    <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Detailed Insights Hidden</h3>
+    <p style={{ color: 'var(--text-secondary)' }}>You are currently on a <strong>Viewer</strong> role. Detailed charts and recent activity streams are restricted to Analysts and Admins.</p>
+  </div>
+)}
+
+{error && (
   <div className="glass-panel stagger-3" style={{ padding: '24px', color: 'var(--danger)' }}>
     <p>{error}</p>
   </div>
-) : (
-        <div className="glass-panel stagger-2" style={{ padding: '30px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Detailed Insights Hidden</h3>
-          <p style={{ color: 'var(--text-secondary)' }}>You are currently on a <strong>Viewer</strong> role. Detailed charts and recent activity streams are restricted to Analysts and Admins.</p>
-        </div>
-      )}
+)}
 
       {/* Charts - Visible to Analyst and Admin */}
       {(user.role === 'analyst' || user.role === 'admin') && (
@@ -298,7 +298,15 @@ const Dashboard = () => {
 
       {/* Recent Activity - Visible to Analyst and Admin */}
       {user.role === 'viewer' ? (
-  <p>You cannot access recent activity</p>
+  <div className="glass-panel stagger-3" style={{ padding: '30px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
+    <div style={{ marginBottom: '16px', color: 'var(--warning)' }}>
+      <Activity size={40} style={{ margin: '0 auto' }} />
+    </div>
+    <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Activity Restricted</h3>
+    <p style={{ color: 'var(--text-secondary)', marginBottom: '0' }}>
+      Recent activity logs are restricted to <strong>Analysts</strong> and <strong>Admins</strong> only. You currently have <strong>Viewer</strong> access.
+    </p>
+  </div>
 ) : (
   <div className="glass-panel stagger-3" style={{ padding: '24px' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
