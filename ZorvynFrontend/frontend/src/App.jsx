@@ -8,17 +8,19 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Users from './pages/Users';
+import Landing from './pages/Landing';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute allowedRoles={['admin', 'analyst', 'viewer']} />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/records" element={<Transactions />} />
               
               {/* Only admins can access users management */}
@@ -26,7 +28,7 @@ function App() {
                 <Route path="/users" element={<Users />} />
               </Route>
             </Route>
-                <Route path="/register" element={<Register />} />
+                {/* <Route path="/register" element={<Register />} /> */}
           </Route>
           
           <Route path="*" element={<Navigate to="/" replace />} />
