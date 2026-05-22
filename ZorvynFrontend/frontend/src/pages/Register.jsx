@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus } from 'lucide-react';
 
 const Register = () => {
+    const API_URL = import.meta.env.VITE_API_URL;
     const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
@@ -40,7 +41,7 @@ const Register = () => {
 
         setLoading(true);
         try {
-            const res = await fetch('/user/register', {
+            const res = await fetch(`${API_URL}/user/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 // Only send fields required for registration.
