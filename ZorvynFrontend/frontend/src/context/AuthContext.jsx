@@ -1,31 +1,31 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api } from '../services/api';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useContext, useState } from 'react';
+import { clearAuthToken, getAuthToken, setAuthToken } from '../services/authToken';
 
 const AuthContext = createContext();
 
 // Mock initial state, you could check localStorage here
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check locally saved user and token for auth persistence
-    const savedUser = localStorage.getItem('finance_user');
-    const savedToken = localStorage.getItem('finance_token');
-    if (savedUser && savedToken) {
-      setUser(JSON.parse(savedUser));
-     // console.log(savedUser);
-      setToken(savedToken);
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('finance_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
     }
-    setLoading(false);
-  }, []);
+  });
+
+  const [token, setToken] = useState(() => getAuthToken());
+  const [loading] = useState(false);
 
   const login = (userData, receivedToken) => {
     setUser(userData);
     setToken(receivedToken);
     localStorage.setItem('finance_user', JSON.stringify(userData));
-    localStorage.setItem('finance_token', receivedToken);
+    // Token is stored in a cookie now (not localStorage)
+    setAuthToken(receivedToken);
+    // Clean up any legacy token from older builds
+    localStorage.removeItem('finance_token');
   };
 
   const logout = () => {
@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('finance_user');
     localStorage.removeItem('finance_token');
+    clearAuthToken();
   };
 
   const hasRole = (roles) => {

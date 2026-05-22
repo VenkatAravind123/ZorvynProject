@@ -2,8 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogIn } from 'lucide-react';
 import { useState } from 'react';
-
+import { clearAuthToken } from '../services/authToken';
+import { Link } from 'react-router-dom';
 const Login = () => {
+  console.log('VITE_API_URL =', import.meta.env.VITE_API_URL);
  const { login } = useAuth();
  const navigate = useNavigate();
 
@@ -13,6 +15,9 @@ const Login = () => {
  const [error, setError] = useState(null);
 
  const clearAuthStorage = () => {
+  // Token is stored in a cookie now (not localStorage)
+  clearAuthToken();
+  // Clean up any legacy token from older builds
   localStorage.removeItem('finance_token');
   localStorage.removeItem('finance_user');
  };
@@ -102,9 +107,6 @@ const Login = () => {
     : 'viewer';
 
   const user = { email: email.trim(), role };
-
-  localStorage.setItem('finance_token', token);
-  localStorage.setItem('finance_user', JSON.stringify(user));
 
   if (typeof login === 'function') {
    login(user, token);
@@ -225,7 +227,21 @@ const Login = () => {
  >
  {loading ? 'Verifying...' : <><LogIn size={18} /> Log In</>}
  </button>
+ 
  </form>
+ <div
+  style={{
+    marginTop: '18px',
+    textAlign: 'center',
+    fontSize: '0.9rem',
+    color: 'var(--text-muted)',
+  }}
+>
+  New user?{' '}
+  <Link to="/register" style={{ color: 'var(--primary)', textDecoration: 'none' }}>
+    Register
+  </Link>
+</div>
 
  <div style={{
  marginTop: '30px',

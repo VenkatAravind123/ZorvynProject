@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../services/api';
 import { Shield, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { getAuthHeader, getAuthToken } from '../services/authToken';
 
 const Users = () => {
   const { user } = useAuth();
@@ -22,7 +22,7 @@ const Users = () => {
       try {
         const res = await axios.get('/user/viewusers', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('finance_token')}`
+            ...getAuthHeader()
           }
         });
         console.log('Backend response array:', res.data);
@@ -40,7 +40,7 @@ const Users = () => {
 
  const updateUserRole = async (id, newRole) => {
   try {
-    const token = localStorage.getItem('finance_token');
+     const token = getAuthToken();
 
     await axios.put(
       `/user/users/${id}/role?role=${newRole}`,
@@ -61,7 +61,7 @@ const Users = () => {
 
 const updateUserStatus = async (id, newStatus) => {
   try {
-    const token = localStorage.getItem('finance_token');
+     const token = getAuthToken();
 
     await axios.put(
       `/user/users/${id}/status?status=${newStatus}`,

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../services/api';
 import { ArrowUpRight, ArrowDownRight, DollarSign, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { getAuthHeader } from '../services/authToken';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -15,37 +15,47 @@ const Dashboard = () => {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [categoryTotals,setCategoryTotals] = useState([])
+  const [categoryAccessDenied, setCategoryAccessDenied] = useState(false);
   // const [netBalance, setNetBalance] = useState(0);
   const [trends, setTrends] = useState([]);
    const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
-    
-    const fetchAll = async () => {
-    setLoading(true);
-    try {
-      await Promise.all([
-        fetchWeeklyTrends(),
-        fetchRecentActivity(),
-        fetchCategoryTotals(),
-        fetchTotalExpenses(),
-        fetchTotalIncome()
-      ]);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (!user?.role) return;
 
-  fetchAll();
-  }, []);
+    const fetchAll = async () => {
+      setError(null);
+      setCategoryAccessDenied(false);
+      setLoading(true);
+
+      try {
+        const requests = [fetchTotalExpenses(), fetchTotalIncome()];
+
+        // These endpoints are restricted; only call them for Admin/Analyst.
+        if (user.role === 'admin' || user.role === 'analyst') {
+          requests.push(fetchWeeklyTrends(), fetchRecentActivity(), fetchCategoryTotals());
+        } else {
+          // For viewer: don't call /user/viewrecords/filter at all.
+          setCategoryAccessDenied(true);
+          setCategoryTotals([]);
+        }
+
+        await Promise.all(requests);
+      } catch (err) {
+        setError(err?.message || 'Failed to load dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAll();
+  }, [user?.role]);
 
   const fetchTotalIncome = async () => {
       try {
         const res = await axios.get("/user/gettotalincome",{
           headers:{
-            Authorization: `Bearer ${localStorage.getItem("finance_token")}`,
+            ...getAuthHeader(),
           },
         });
        // console.log(res.data);
@@ -64,7 +74,7 @@ const Dashboard = () => {
       try {
         const res = await axios.get("/user/gettotalexpense",{
           headers:{
-            Authorization: `Bearer ${localStorage.getItem("finance_token")}`,
+            ...getAuthHeader(),
           },
         });
        // console.log(res.data);
@@ -83,7 +93,7 @@ const Dashboard = () => {
       try{
         const res = await axios.get("/user/viewrecords/filter",{
           headers:{
-            Authorization: `Bearer ${localStorage.getItem("finance_token")}`,
+            ...getAuthHeader(),
           },
           params:{ recordType:"EXPENSE"}
         });
@@ -101,6 +111,11 @@ const Dashboard = () => {
       
         
       } catch (err) {
+        if (err?.response?.status === 403) {
+          setCategoryAccessDenied(true);
+          setCategoryTotals([]);
+          return;
+        }
         setError(err.message);
       } finally {
         setLoading(false);
@@ -111,7 +126,7 @@ const Dashboard = () => {
       try{
         const res = await axios.get("/user/recentrecords",{
           headers:{
-            Authorization: `Bearer ${localStorage.getItem("finance_token")}`,
+            ...getAuthHeader(),
           },
         });
         setRecentActivity(res.data);
@@ -134,7 +149,7 @@ const Dashboard = () => {
       try{
         const res = await axios.get("/user/weeklytrends",{
           headers:{
-            Authorization: `Bearer ${localStorage.getItem("finance_token")}`,
+            ...getAuthHeader(),
           },
         });
          const rawData = res.data;
@@ -268,7 +283,9 @@ const Dashboard = () => {
           <div className="glass-panel" style={{ padding: '24px' }}>
             <h3 style={{ marginBottom: '24px', fontSize: '1.1rem' }}>Expenses by Category</h3>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: 0 }}>
-              {categoryTotals.length > 0 ? (
+              {categoryAccessDenied ? (
+                <p style={{ color: 'var(--text-muted)' }}>Cannot access records.</p>
+              ) : categoryTotals.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie

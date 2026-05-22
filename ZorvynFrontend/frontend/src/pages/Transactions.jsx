@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../services/api';
 import { Plus, Filter, Trash2, ShieldAlert,SquarePen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { getAuthHeader } from '../services/authToken';
 
 const Transactions = () => {
   const { user } = useAuth();
@@ -29,7 +29,7 @@ const Transactions = () => {
 
       const res = await axios.get('/user/viewrecords',{
         headers:{
-          Authorization: `Bearer ${localStorage.getItem('finance_token')}`
+          ...getAuthHeader()
         },
         params: queryParams
       });
@@ -50,7 +50,7 @@ const Transactions = () => {
     try {
       await axios.delete(`/user/deleterecord/${id}`,{
         headers:{
-          Authorization: `Bearer ${localStorage.getItem('finance_token')}`
+          ...getAuthHeader()
         }
       });
       setTransactions(transactions.filter(t => t.id !== id));
@@ -87,7 +87,7 @@ const Transactions = () => {
 
       await axios.put('/user/updaterecord', payload, {
         headers:{
-          Authorization: `Bearer ${localStorage.getItem('finance_token')}`
+          ...getAuthHeader()
         }
       });
       await fetchTransactions();
@@ -112,7 +112,7 @@ const Transactions = () => {
 
       const res = await axios.post('/user/createrecord', payload, {
         headers:{
-          Authorization: `Bearer ${localStorage.getItem('finance_token')}`
+          ...getAuthHeader()
         }
       });
       setTransactions([res.data, ...transactions]);

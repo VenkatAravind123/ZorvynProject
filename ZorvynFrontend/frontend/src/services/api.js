@@ -26,19 +26,7 @@ const getRoleFromLocal = () => {
   return user.role || 'viewer';
 };
 
-export const api = {
-  // AUTH API
-  login: async (userPayload) => {
-    try {
-      // Connect directly to your Spring Boot backend on typical development port 8080
-      const response = await axios.post('http://localhost:8080/login', userPayload);
-      
-      // Return the bare token string as your backend formats it
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Invalid credentials or Backend is offline');
-    }
-  },
+
 
   // SUMMARY API
   getDashboardSummary: async () => {
