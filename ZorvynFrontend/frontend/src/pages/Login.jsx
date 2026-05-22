@@ -113,7 +113,7 @@ const Login = () => {
    login(user, token);
   }
 
-  navigate('/', { replace: true });
+  navigate('/dashboard', { replace: true });
  } catch (err) {
  console.error('Login error:', err);
   clearAuthStorage();

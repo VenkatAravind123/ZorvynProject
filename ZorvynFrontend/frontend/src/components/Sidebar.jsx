@@ -44,7 +44,7 @@ const Sidebar = () => {
       </div>
 
       <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
-        <NavLink to="/" style={({ isActive }) => navItemStyle(isActive)}>
+        <NavLink to="/dashboard" style={({ isActive }) => navItemStyle(isActive)}>
           <LayoutDashboard size={20} /> Dashboard
         </NavLink>
         
