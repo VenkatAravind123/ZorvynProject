@@ -6,6 +6,7 @@ import { getAuthHeader, getAuthToken } from '../services/authToken';
 
 const Users = () => {
   const { user } = useAuth();
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,7 +21,7 @@ const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get('/user/viewusers', {
+        const res = await axios.get(`${API_URL}/user/viewusers`, {
           headers: {
             ...getAuthHeader()
           }
@@ -43,7 +44,7 @@ const Users = () => {
      const token = getAuthToken();
 
     await axios.put(
-      `/user/users/${id}/role?role=${newRole}`,
+      `${API_URL}/user/users/${id}/role?role=${newRole}`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -64,7 +65,7 @@ const updateUserStatus = async (id, newStatus) => {
      const token = getAuthToken();
 
     await axios.put(
-      `/user/users/${id}/status?status=${newStatus}`,
+      `${API_URL}/user/users/${id}/status?status=${newStatus}`,
       {},
       { headers: { Authorization: `Bearer ${token}` } }
     );

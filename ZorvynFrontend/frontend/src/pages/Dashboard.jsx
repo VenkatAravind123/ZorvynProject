@@ -9,6 +9,7 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const API_URL = import.meta.env.VITE_API_URL || '';
   //const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,7 +54,7 @@ const Dashboard = () => {
 
   const fetchTotalIncome = async () => {
       try {
-        const res = await axios.get("/user/gettotalincome",{
+        const res = await axios.get(`${API_URL}/user/gettotalincome`,{
           headers:{
             ...getAuthHeader(),
           },
@@ -72,7 +73,7 @@ const Dashboard = () => {
     };
     const fetchTotalExpenses = async () => {
       try {
-        const res = await axios.get("/user/gettotalexpense",{
+        const res = await axios.get(`${API_URL}/user/gettotalexpense`,{
           headers:{
             ...getAuthHeader(),
           },
@@ -91,14 +92,15 @@ const Dashboard = () => {
     };
     const fetchCategoryTotals = async () =>{
       try{
-        const res = await axios.get("/user/viewrecords/filter",{
+        const res = await axios.get(`${API_URL}/user/viewrecords/filter`,{
           headers:{
             ...getAuthHeader(),
           },
           params:{ recordType:"EXPENSE"}
         });
        // console.log(res.data);
-       const grouped = (res.data || []).reduce((acc,item)=>{
+       const records = Array.isArray(res.data) ? res.data : [];
+       const grouped = records.reduce((acc,item)=>{
         const key = item.category || "Uncategorized";
         const amount = Number(item.amount) || 0;
         acc[key] = (acc[key] || 0) + amount;
@@ -124,12 +126,12 @@ const Dashboard = () => {
 
     const fetchRecentActivity = async () =>{
       try{
-        const res = await axios.get("/user/recentrecords",{
+        const res = await axios.get(`${API_URL}/user/recentrecords`,{
           headers:{
             ...getAuthHeader(),
           },
         });
-        setRecentActivity(res.data);
+        setRecentActivity(Array.isArray(res.data) ? res.data : []);
         console.log(res.data);
         
       }catch(err){
@@ -147,7 +149,7 @@ const Dashboard = () => {
 
     const fetchWeeklyTrends = async () =>{
       try{
-        const res = await axios.get("/user/weeklytrends",{
+        const res = await axios.get(`${API_URL}/user/weeklytrends`,{
           headers:{
             ...getAuthHeader(),
           },

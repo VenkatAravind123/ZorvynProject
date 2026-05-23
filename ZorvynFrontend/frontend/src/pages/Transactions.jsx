@@ -6,6 +6,7 @@ import { getAuthHeader } from '../services/authToken';
 
 const Transactions = () => {
   const { user } = useAuth();
+  const API_URL = import.meta.env.VITE_API_URL || '';
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,7 +28,7 @@ const Transactions = () => {
       if (filters.startDate) queryParams.startDate = filters.startDate + 'T00:00:00';
       if (filters.endDate) queryParams.endDate = filters.endDate + 'T23:59:59';
 
-      const res = await axios.get('/user/viewrecords',{
+      const res = await axios.get(`${API_URL}/user/viewrecords`,{
         headers:{
           ...getAuthHeader()
         },
@@ -48,7 +49,7 @@ const Transactions = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/user/deleterecord/${id}`,{
+      await axios.delete(`${API_URL}/user/deleterecord/${id}`,{
         headers:{
           ...getAuthHeader()
         }
@@ -85,7 +86,7 @@ const Transactions = () => {
         recordDate: updateData.recordDate ? updateData.recordDate + 'T00:00:00' : null
       };
 
-      await axios.put('/user/updaterecord', payload, {
+      await axios.put(`${API_URL}/user/updaterecord`, payload, {
         headers:{
           ...getAuthHeader()
         }
@@ -110,7 +111,7 @@ const Transactions = () => {
         recordDate: formData.recordDate ? formData.recordDate + 'T00:00:00' : null
       };
 
-      const res = await axios.post('/user/createrecord', payload, {
+      const res = await axios.post(`${API_URL}/user/createrecord`, payload, {
         headers:{
           ...getAuthHeader()
         }

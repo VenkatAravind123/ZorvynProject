@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { clearAuthToken } from '../services/authToken';
 import { Link } from 'react-router-dom';
 const Login = () => {
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || '';
   console.log('VITE_API_URL =', import.meta.env.VITE_API_URL);
  const { login } = useAuth();
  const navigate = useNavigate();
